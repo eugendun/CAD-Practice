@@ -40,7 +40,15 @@ public:
 
 	// TODO: implement more basis transformation matrices
 	// ==================================================
-	
+	static Matrix4f rotateX(float angle);
+
+	static Matrix4f rotateY(float angle);
+
+	static Matrix4f rotateZ(float angle);
+
+	static Matrix4f scale(float s);
+
+	static Matrix4f scale(float x, float y, float z);
 	// ==================================================
 
 };

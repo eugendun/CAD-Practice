@@ -97,5 +97,47 @@ Matrix4f Matrix4f::translationMatrix(float tx, float ty, float tz)
 
 // TODO: implement more basis transformation matrices
 // ==================================================
+Matrix4f Matrix4f::rotateX(float angle)
+{
+	Matrix4f result;
+	result.values[1][2] = cosf(angle);
+	result.values[1][1] = -sinf(angle);
+	result.values[2][1] = sinf(angle);
+	result.values[2][2] = cosf(angle);
+	return result;
+}
 
+Matrix4f Matrix4f::rotateY(float angle)
+{
+	Matrix4f result;
+	result.values[0][0] = cosf(angle);
+	result.values[2][0] = -sinf(angle);
+	result.values[0][2] = sinf(angle);
+	result.values[2][2] = cosf(angle);
+	return result;
+}
+
+Matrix4f Matrix4f::rotateZ(float angle)
+{
+	Matrix4f result;
+	result.values[0][0] = cosf(angle);
+	result.values[1][0] = sinf(angle);
+	result.values[0][1] = -sinf(angle);
+	result.values[1][1] = cosf(angle);
+	return result;
+}
+
+Matrix4f Matrix4f::scale(float s)
+{
+	return Matrix4f::scale(s, s, s);
+}
+
+Matrix4f Matrix4f::scale(float x, float y, float z)
+{
+	Matrix4f result;
+	result.values[0][0] = x;
+	result.values[1][1] = y;
+	result.values[2][2] = z;
+	return result;
+}
 // ==================================================
