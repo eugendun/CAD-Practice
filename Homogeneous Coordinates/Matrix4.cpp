@@ -12,6 +12,9 @@
 
 #include "Matrix4.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 Matrix4f::Matrix4f()
 {
 	for(unsigned int row = 0; row < 4; ++row)
@@ -99,31 +102,37 @@ Matrix4f Matrix4f::translationMatrix(float tx, float ty, float tz)
 // ==================================================
 Matrix4f Matrix4f::rotateX(float angle)
 {
+	float a = angle * M_PI / 180.0f;
+
 	Matrix4f result;
-	result.values[1][2] = cosf(angle);
-	result.values[1][1] = -sinf(angle);
-	result.values[2][1] = sinf(angle);
-	result.values[2][2] = cosf(angle);
+	result.values[1][2] = cosf(a);
+	result.values[1][1] = -sinf(a);
+	result.values[2][1] = sinf(a);
+	result.values[2][2] = cosf(a);
 	return result;
 }
 
 Matrix4f Matrix4f::rotateY(float angle)
 {
+	float a = angle * M_PI / 180.0f;
+
 	Matrix4f result;
-	result.values[0][0] = cosf(angle);
-	result.values[2][0] = -sinf(angle);
-	result.values[0][2] = sinf(angle);
-	result.values[2][2] = cosf(angle);
+	result.values[0][0] = cosf(a);
+	result.values[2][0] = -sinf(a);
+	result.values[0][2] = sinf(a);
+	result.values[2][2] = cosf(a);
 	return result;
 }
 
 Matrix4f Matrix4f::rotateZ(float angle)
 {
+	float a = angle * M_PI / 180.0f;
+
 	Matrix4f result;
-	result.values[0][0] = cosf(angle);
-	result.values[1][0] = sinf(angle);
-	result.values[0][1] = -sinf(angle);
-	result.values[1][1] = cosf(angle);
+	result.values[0][0] = cosf(a);
+	result.values[1][0] = sinf(a);
+	result.values[0][1] = -sinf(a);
+	result.values[1][1] = cosf(a);
 	return result;
 }
 
