@@ -136,6 +136,22 @@ Matrix4f Matrix4f::rotateZ(float angle)
 	return result;
 }
 
+Matrix4f Matrix4f::rotate(const Quaternion& quaternion)
+{
+	float a = quaternion.getAngle();
+	float x = quaternion.getAxis().x;
+	float y = quaternion.getAxis().y;
+	float z = quaternion.getAxis().z;
+	float cosa = cosf(a);
+	float sina = sinf(a);
+
+	Matrix4f result;
+	result.values[0][0] = x*x * (1 - cosa) +   cosa;   result.values[0][1] = x*y * (1 - cosa) - z*sina;   result.values[0][2] = x*z * (1 - cosa) + y*sina;
+	result.values[1][0] = y*x * (1 - cosa) + z*sina;   result.values[1][1] = y*y * (1 - cosa) +   cosa;   result.values[1][2] = y*z * (1 - cosa) - x*sina;
+	result.values[2][0] = z*x * (1 - cosa) - y*sina;   result.values[2][1] = z*y * (1 - cosa) + x*sina;   result.values[2][2] = z*z * (1 - cosa) +   cosa;
+	return result;
+}
+
 Matrix4f Matrix4f::scale(float s)
 {
 	return Matrix4f::scale(s, s, s);
