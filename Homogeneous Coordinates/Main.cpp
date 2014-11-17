@@ -160,6 +160,26 @@ void drawObjects()
 	// =================================================================================
 }
 
+void rotate10AroundZ(Vec4f& v) {
+	v = Matrix4f::rotateZ(10) * v;
+}
+
+void rotate10AroundY(Vec4f& v) {
+	v = Matrix4f::rotateY(10) * v;
+}
+
+void translateX(Vec4f& v) {
+	v = Matrix4f::translationMatrix(0.5f, 0.0f, 0.0f) * v;
+}
+
+void translateY(Vec4f& v) {
+	v = Matrix4f::translationMatrix(0.0f, 0.5f, 0.0f) * v;
+}
+
+void concattedTransformation(Vec4f& v) {
+	v = Matrix4f::translationMatrix(0.2f, 0.5f, 0.0f) * Matrix4f::rotateZ(-15) * Matrix4f::translationMatrix(-0.2f, 0.0f, 0.0f) * v;
+}
+
 void renderScene()
 {
 	// clear and set camera
@@ -204,7 +224,36 @@ void keyPressed(unsigned char key, int x, int y)
 		break;
 		// TODO: place custom functions on button events here to present your results
 		// ==========================================================================
-
+	case 'x' :
+	case 'X' :
+		translateX(p1);
+		translateX(p2);
+		glutPostRedisplay();
+		break;
+	case 'y' :
+	case 'Y' :
+		rotate10AroundY(p1);
+		rotate10AroundY(p2);
+		glutPostRedisplay();
+		break;
+	case 'z' :
+	case 'Z' :
+		rotate10AroundZ(p1);
+		rotate10AroundZ(p2);
+		glutPostRedisplay();
+		break;
+	case 't':
+	case 'T':
+		translateY(p1);
+		translateY(p2);
+		glutPostRedisplay();
+		break;
+	case 'c':
+	case 'C':
+		concattedTransformation(p1);
+		concattedTransformation(p2);
+		glutPostRedisplay();
+		break;
 		// ==========================================================================
 	}
 }
@@ -258,8 +307,14 @@ void coutHelp()
 	std::cout << "R: (R)eset view" << std::endl;
 	// TODO: update help text according to your changes
 	// ================================================
-
+	std::cout << "X: Translate line on x axis" << std::endl;
+	std::cout << "Y: Rotate line around y axis" << std::endl;
+	std::cout << "Z: Rotate line around z axis" << std::endl;
+	std::cout << "T: Translate line on y axis" << std::endl;
+	std::cout << "C: Transform line by concatted transformations" << std::endl;
 	// ================================================
-	std::cout << "==========================" << std::endl;
+	std::cout << "========== INFO ==========" << std::endl;
+	std::cout << "* To test incommutativity of transformations, run 'X' and 'Z' in different orders." << std::endl;
+	std::cout << "* To test special case of commutativity of transformations, run 'Y' and 'T' in different orders." << std::endl;
 	std::cout << std::endl;
 }
