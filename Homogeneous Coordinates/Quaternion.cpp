@@ -57,7 +57,7 @@ Quaternion Quaternion::conjugated() const
 
 float Quaternion::norm() const
 {
-	return w*w + u.sqlength;
+	return w*w + u.sqlength();
 }
 
 float Quaternion::length() const
@@ -91,4 +91,14 @@ Matrix4f Quaternion::getRotationMatrix()
 	result.values[3][3] = 1.0f;
 
 	return result;
+}
+
+
+float Quaternion::getAngle() const {
+	return w;
+}
+
+
+const Vec3f& Quaternion::getAxis() const {
+	return u;
 }

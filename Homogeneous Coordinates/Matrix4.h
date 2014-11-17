@@ -13,8 +13,11 @@
 #ifndef MATRIX_4_H
 #define MATRIX_4_H
 
+class Matrix4f;
+
 #include "Vec4.h"
 #include "Vec3.h"
+#include "Quaternion.h"
 
 class Matrix4f
 {
@@ -45,6 +48,8 @@ public:
 	static Matrix4f rotateY(float angle);
 
 	static Matrix4f rotateZ(float angle);
+
+	static Matrix4f rotate(const Quaternion& quaternion);
 
 	static Matrix4f scale(float s);
 

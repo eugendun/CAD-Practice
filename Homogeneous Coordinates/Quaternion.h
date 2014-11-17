@@ -1,5 +1,7 @@
 #pragma once
 
+class Quaternion;
+
 #include "Vec4.h"
 #include "Matrix4.h"
 
@@ -20,6 +22,9 @@ public:
 	float length() const;
 
 	Matrix4f getRotationMatrix();
+
+	float getAngle() const;
+	const Vec3f& getAxis() const;
 
 private:
 	float w;
