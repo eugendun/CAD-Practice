@@ -59,8 +59,8 @@ void setDefaults()
 	mouseButton = 0;
 	mouseSensitivy = 1.0f;
 	// objects
-	p1.set(1.0f, 0.0f, 0.0f, 1.0f);
-	p2.set(0.0f, 1.0f, 0.0f, 1.0f);
+	p1.set(0.3f, 0.0f, 0.2f, 1.0f);
+	p2.set(1.4f, 0.0f, 1.4f, 2.0f);
 	p3.set(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
@@ -119,15 +119,7 @@ void drawObjects()
 #ifdef DRAW_EXAMPLES
 
 	// Example: draw a line
-	p1.x = 0.3f;
-	p1.y = 0.0f;
-	p1.z = 0.2f;
-	p1.w = 1.0f;
-
-	p2.x = 1.4f;
-	p2.y = 0.0f;
-	p2.z = 1.4f;
-	p2.w = 2.0f;
+	
 
 	// to draw lines: specify color with glColor3f and two vertices with glVertex3f
 	p2.homogenize(); // always homogenize before drawing unless you know for sure that the w component is 1 already
