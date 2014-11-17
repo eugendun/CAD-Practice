@@ -30,10 +30,10 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(300, 200);
 	glutInitWindowSize(600, 400);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutCreateWindow("TU Darmstadt, MBein");
+	glutCreateWindow("TU Darmstadt, MBein"); 
 	// link functions to certain openGL events
 	glutDisplayFunc(renderScene);
-	glutReshapeFunc(reshape);
+	glutReshapeFunc(reshape);  
 	glutMouseFunc(mousePressed);
 	glutMotionFunc(mouseMoved);
 	glutKeyboardFunc(keyPressed);
@@ -62,8 +62,6 @@ void setDefaults()
 	p1.set(1.0f, 0.0f, 0.0f, 1.0f);
 	p2.set(0.0f, 1.0f, 0.0f, 1.0f);
 	p3.set(0.0f, 0.0f, 1.0f, 1.0f);
-
-	drawableObjects.push_back(&point);
 }
 
 void initializeGL()
@@ -100,7 +98,7 @@ void drawCS()
 {
 	glBegin(GL_LINES);
 	// red X
-	glColor3f(1, 0, 0);
+	glColor3f(1, 0, 0); 
 	glVertex3f(0, 0, 0);
 	glVertex3f(1, 0, 0);
 	// green Y
@@ -117,7 +115,7 @@ void drawCS()
 void drawObjects()
 {
 
-	// hint: if DRAW_EXAMPLES is not defined, p1, p2 and p3 are initialized in the setDefaults method
+// hint: if DRAW_EXAMPLES is not defined, p1, p2 and p3 are initialized in the setDefaults method
 #ifdef DRAW_EXAMPLES
 
 	// Example: draw a line
@@ -139,6 +137,18 @@ void drawObjects()
 	glVertex3f(p2.x, p2.y, p2.z);
 	glEnd();
 
+	// Example: draw a point
+	p3.x = 0.5f;
+	p3.y = 0.5f;
+	p3.z = 0.5f;
+	p3.w = 1.0f;
+
+	// to draw a point: specify a color with glColor3f and one vertex with glVertex3f
+	glBegin(GL_POINTS);
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(p3.x, p3.y, p3.z);
+	glEnd();
+
 #endif
 
 	// TODO: generate, transform and draw objects, like detailed in exercise description
@@ -147,17 +157,7 @@ void drawObjects()
 	// To transform a point use *: "Vec4f resultPoint = matrix * point;"
 	// =================================================================================
 
-	Matrix4f trans = Matrix4f::translationMatrix(0.5f, 0.5f, 0.5f);
-	Vec4f resultPoint = trans * Vec4<float>(0.0f, 0.0f, 0.0, 1.0f);
-	point.setPosition(resultPoint);
-
 	// =================================================================================
-
-	// draw all object 
-	for each (IDrawable* var in drawableObjects)
-	{
-		var->draw();
-	}
 }
 
 void rotate10AroundZ(Vec4f& v) {
@@ -186,7 +186,7 @@ void renderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	// translate scene in viewing direction
-	glTranslatef(transX, transY, transZ);
+	glTranslatef(transX, transY, transZ);  
 	// rotate scene
 	glRotatef(angleX, 0.0f, 1.0f, 0.0f);
 	glRotatef(angleY, 1.0f, 0.0f, 0.0f);
@@ -212,13 +212,13 @@ void keyPressed(unsigned char key, int x, int y)
 		exit(0);
 		break;
 		// help file
-	case 'h':
-	case 'H':
+	case 'h' :
+	case 'H' :
 		coutHelp();
 		break;
 		// reset view
-	case 'r':
-	case 'R':
+	case 'r' :
+	case 'R' :
 		setDefaults();
 		glutPostRedisplay();	// use this whenever 3d data changed to redraw the scene
 		break;
@@ -261,7 +261,7 @@ void keyPressed(unsigned char key, int x, int y)
 void mousePressed(int button, int state, int x, int y)
 {
 	mouseButton = button;
-	mouseX = x;
+	mouseX = x; 
 	mouseY = y;
 }
 
@@ -270,8 +270,8 @@ void mouseMoved(int x, int y)
 	// rotate (cap angleY within [-85°, +85°])
 	if (mouseButton == GLUT_LEFT_BUTTON)
 	{
-		angleX = fmod(angleX + (x - mouseX) * mouseSensitivy, 360.0f);
-		angleY += (y - mouseY) * mouseSensitivy;
+		angleX = fmod(angleX + (x-mouseX) * mouseSensitivy, 360.0f);
+		angleY += (y-mouseY) * mouseSensitivy;
 		if (angleY > 85) angleY = 85;
 		if (angleY < -85) angleY = -85;
 		glutPostRedisplay();
@@ -279,14 +279,14 @@ void mouseMoved(int x, int y)
 	// zoom (here translation in z)
 	if (mouseButton == GLUT_RIGHT_BUTTON)
 	{
-		transZ -= 0.2f * (y - mouseY) * mouseSensitivy;
+		transZ -= 0.2f * (y-mouseY) * mouseSensitivy;
 		glutPostRedisplay();
 	}
 	// translation in xy
-	if (mouseButton == GLUT_MIDDLE_BUTTON)
+	if (mouseButton == GLUT_MIDDLE_BUTTON) 
 	{
-		transX += 0.2f * (x - mouseX) * mouseSensitivy;
-		transY -= 0.2f * (y - mouseY) * mouseSensitivy;
+		transX += 0.2f * (x-mouseX) * mouseSensitivy;
+		transY -= 0.2f * (y-mouseY) * mouseSensitivy;
 		glutPostRedisplay();
 	}
 	// update mouse for next relative movement

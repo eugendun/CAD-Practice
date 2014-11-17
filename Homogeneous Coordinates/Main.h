@@ -13,11 +13,9 @@
 // ========================================================================= //
 
 #include <GL/glut.h>	// openGL helper
-#include <vector>
 
 #include "Vec4.h"		// homogene vector (4 elements)
 #include "Matrix4.h"	// homogene matrix (4x4 elements)
-#include "Point.h"
 
 // ===================
 // === GLOBAL DATA ===
@@ -31,10 +29,6 @@
 
 // some points used for drawing point & line example
 Vec4f p1, p2, p3;
-
-Point point;
-
-std::vector<IDrawable*> drawableObjects;
 
 // ===========================================================
 
