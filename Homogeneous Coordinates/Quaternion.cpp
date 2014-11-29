@@ -9,14 +9,28 @@ Quaternion::Quaternion()
 	u = Vec3f();
 }
 
-Quaternion::Quaternion(float angle, const Vec3f& axis)
+Quaternion::Quaternion(float w, const Vec3f& u)
 {
-	float a = angle *  M_PI / 180;
+	this->w = w;
+	this->u = u;
+}
 
-	Vec3f v = axis.normalized();
+Quaternion::Quaternion(float w, float x, float y, float z){
+	this->w = w;
+	this->u.x = x;
+	this->u.y = y;
+	this->u.z = z;
+}
 
-	w = cosf(a) / 2.0f;
-	u = v * sinf(a) / 2.0f;
+Quaternion Quaternion::rotationQuaternion(float angle, const Vec3f& axis){
+	float a = (angle / 2.0f) *  M_PI / 180;
+
+	Vec3f u = axis.normalized();
+
+	float w = cosf(a);
+	u = axis * sin(a);
+
+	return Quaternion(w, u);
 }
 
 Quaternion Quaternion::operator+(const Quaternion& right) const
@@ -32,7 +46,7 @@ Quaternion Quaternion::operator*(const Quaternion& right) const
 {
 	Quaternion result;
 	result.w = w*right.w - u*right.u;
-	result.u = w*right.u + right.w*u + u^right.u;
+	result.u = (w*right.u) + (right.w*u) + (u^right.u);
 
 	return result;
 }
@@ -50,9 +64,22 @@ Quaternion Quaternion::conjugated() const
 {
 	Quaternion result;
 	result.w = w;
-	result.u = u;
+	result.u = this->u * -1;
 
-	return result*(-0.5f);
+	return result;
+}
+
+Quaternion Quaternion::normalized() const
+{
+	Quaternion result;
+	result.w = this->w;
+	result.u.x = this->u.x;
+	result.u.y = this->u.y;
+	result.u.z = this->u.z;
+
+	float l = this->length();
+
+	return result * (1.0f / l);
 }
 
 float Quaternion::norm() const
@@ -72,23 +99,23 @@ Quaternion::~Quaternion()
 Matrix4f Quaternion::getRotationMatrix()
 {
 	Matrix4f result;
-	result.values[0][0] = 1.0f - 2.0f * (u.y*u.y - u.z*u.z);
-	result.values[1][0] = 2.0f * (u.x*u.y + w*u.z);
-	result.values[2][0] = 2.0f * (u.x*u.z - w*u.y);
-	result.values[3][0] = 0.0f;
+	result.values[0][0] = 1 - 2 * u.y*u.y - 2 * u.z*u.z;
+	result.values[1][0] = 2 * u.x*u.y + 2 * w*u.z;
+	result.values[2][0] = 2 * u.x*u.z - 2 * w*u.y;
+	result.values[3][0] = 0;
 
-	result.values[0][1] = 2.0f * (u.x*u.y - w*u.z);
-	result.values[1][1] = 1.0f - 2.0f * (u.x*u.x - u.z*u.z);
-	result.values[2][1] = 2.0f * (u.y*u.z + w*u.x);
-	result.values[3][1] = 0.0f;
+	result.values[0][1] = 2 * u.x*u.y - 2 * w*u.z;
+	result.values[1][1] = 1 - 2 * u.x*u.x - 2 * u.z*u.z;
+	result.values[2][1] = 2 * u.y*u.z + 2 * w*u.x;
+	result.values[3][1] = 0;
 
-	result.values[0][2] = 2.0f * (u.x*u.z + w*u.y);
-	result.values[1][2] = 2.0f * (u.y*u.z - w*u.x);
-	result.values[2][2] = 1.0f - 2.0f * (u.x*u.x - u.y*u.y);
-	result.values[3][2] = 0.0f;
+	result.values[0][2] = 2 * u.x*u.z + 2 * w*u.y;
+	result.values[1][2] = 2 * u.y*u.z - 2 * w*u.x;
+	result.values[2][2] = 1 - 2 * u.x*u.x - 2 * u.y*u.y;
+	result.values[3][2] = 0;
 
-	result.values[0][3] = result.values[1][3] = result.values[2][3] = 0.0f;
-	result.values[3][3] = 1.0f;
+	result.values[0][3] = result.values[1][3] = result.values[2][3] = 0;
+	result.values[3][3] = 1;
 
 	return result;
 }

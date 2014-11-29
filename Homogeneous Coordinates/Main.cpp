@@ -30,10 +30,10 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(300, 200);
 	glutInitWindowSize(600, 400);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutCreateWindow("TU Darmstadt, MBein"); 
+	glutCreateWindow("TU Darmstadt, MBein");
 	// link functions to certain openGL events
 	glutDisplayFunc(renderScene);
-	glutReshapeFunc(reshape);  
+	glutReshapeFunc(reshape);
 	glutMouseFunc(mousePressed);
 	glutMotionFunc(mouseMoved);
 	glutKeyboardFunc(keyPressed);
@@ -98,7 +98,7 @@ void drawCS()
 {
 	glBegin(GL_LINES);
 	// red X
-	glColor3f(1, 0, 0); 
+	glColor3f(1, 0, 0);
 	glVertex3f(0, 0, 0);
 	glVertex3f(1, 0, 0);
 	// green Y
@@ -115,11 +115,11 @@ void drawCS()
 void drawObjects()
 {
 
-// hint: if DRAW_EXAMPLES is not defined, p1, p2 and p3 are initialized in the setDefaults method
+	// hint: if DRAW_EXAMPLES is not defined, p1, p2 and p3 are initialized in the setDefaults method
 #ifdef DRAW_EXAMPLES
 
 	// Example: draw a line
-	
+
 
 	// to draw lines: specify color with glColor3f and two vertices with glVertex3f
 	p2.homogenize(); // always homogenize before drawing unless you know for sure that the w component is 1 already
@@ -153,7 +153,15 @@ void drawObjects()
 }
 
 void rotate10AroundZ(Vec4f& v) {
-	v = Matrix4f::rotateZ(10) * v;
+	Matrix4f rot = Quaternion::rotationQuaternion(10, Vec3f(0.f, 0.f, 1.f)).getRotationMatrix();
+
+	Quaternion q = Quaternion::rotationQuaternion(10, Vec3f(0.f, 0.f, 1.f));
+	Quaternion p = Quaternion(0, v.x, v.y, v.z);
+	p = (q * p) * q.conjugated();
+
+	v.x = p.u.x;
+	v.y = p.u.y;
+	v.z = p.u.z;
 }
 
 void rotate10AroundY(Vec4f& v) {
@@ -178,7 +186,7 @@ void renderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	// translate scene in viewing direction
-	glTranslatef(transX, transY, transZ);  
+	glTranslatef(transX, transY, transZ);
 	// rotate scene
 	glRotatef(angleX, 0.0f, 1.0f, 0.0f);
 	glRotatef(angleY, 1.0f, 0.0f, 0.0f);
@@ -204,32 +212,32 @@ void keyPressed(unsigned char key, int x, int y)
 		exit(0);
 		break;
 		// help file
-	case 'h' :
-	case 'H' :
+	case 'h':
+	case 'H':
 		coutHelp();
 		break;
 		// reset view
-	case 'r' :
-	case 'R' :
+	case 'r':
+	case 'R':
 		setDefaults();
 		glutPostRedisplay();	// use this whenever 3d data changed to redraw the scene
 		break;
 		// TODO: place custom functions on button events here to present your results
 		// ==========================================================================
-	case 'x' :
-	case 'X' :
+	case 'x':
+	case 'X':
 		translateX(p1);
 		translateX(p2);
 		glutPostRedisplay();
 		break;
-	case 'y' :
-	case 'Y' :
+	case 'y':
+	case 'Y':
 		rotate10AroundY(p1);
 		rotate10AroundY(p2);
 		glutPostRedisplay();
 		break;
-	case 'z' :
-	case 'Z' :
+	case 'z':
+	case 'Z':
 		rotate10AroundZ(p1);
 		rotate10AroundZ(p2);
 		glutPostRedisplay();
@@ -253,7 +261,7 @@ void keyPressed(unsigned char key, int x, int y)
 void mousePressed(int button, int state, int x, int y)
 {
 	mouseButton = button;
-	mouseX = x; 
+	mouseX = x;
 	mouseY = y;
 }
 
@@ -262,8 +270,8 @@ void mouseMoved(int x, int y)
 	// rotate (cap angleY within [-85°, +85°])
 	if (mouseButton == GLUT_LEFT_BUTTON)
 	{
-		angleX = fmod(angleX + (x-mouseX) * mouseSensitivy, 360.0f);
-		angleY += (y-mouseY) * mouseSensitivy;
+		angleX = fmod(angleX + (x - mouseX) * mouseSensitivy, 360.0f);
+		angleY += (y - mouseY) * mouseSensitivy;
 		if (angleY > 85) angleY = 85;
 		if (angleY < -85) angleY = -85;
 		glutPostRedisplay();
@@ -271,14 +279,14 @@ void mouseMoved(int x, int y)
 	// zoom (here translation in z)
 	if (mouseButton == GLUT_RIGHT_BUTTON)
 	{
-		transZ -= 0.2f * (y-mouseY) * mouseSensitivy;
+		transZ -= 0.2f * (y - mouseY) * mouseSensitivy;
 		glutPostRedisplay();
 	}
 	// translation in xy
-	if (mouseButton == GLUT_MIDDLE_BUTTON) 
+	if (mouseButton == GLUT_MIDDLE_BUTTON)
 	{
-		transX += 0.2f * (x-mouseX) * mouseSensitivy;
-		transY -= 0.2f * (y-mouseY) * mouseSensitivy;
+		transX += 0.2f * (x - mouseX) * mouseSensitivy;
+		transY -= 0.2f * (y - mouseY) * mouseSensitivy;
 		glutPostRedisplay();
 	}
 	// update mouse for next relative movement
