@@ -16,6 +16,7 @@
 
 #include "Vec4.h"		// homogene vector (4 elements)
 #include "Matrix4.h"	// homogene matrix (4x4 elements)
+#include "Curve.h"
 
 // ===================
 // === GLOBAL DATA ===
@@ -30,6 +31,8 @@
 // some points used for drawing point & line example
 Vec4f p1, p2, p3;
 
+Curve *curve;
+
 // ===========================================================
 
 // do not modify data below unless you know what you do
@@ -39,6 +42,8 @@ float angleX, angleY;
 // mouse information
 int mouseX, mouseY, mouseButton;
 float mouseSensitivy;
+
+bool curveMode;
 
 // ==============
 // === BASICS ===
@@ -75,5 +80,7 @@ void mouseMoved(int x, int y);
 // ===============
 // === VARIOUS ===
 // ===============
+
+Vec3d worldCoord(int x, int y);
 
 void coutHelp();

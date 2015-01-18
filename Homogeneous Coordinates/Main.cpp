@@ -13,6 +13,7 @@
 // ========================================================================= //
 
 #include "main.h"		// this header
+#include "CurveGenerator.h"
 
 #include <stdlib.h>		// standard library
 #include <math.h>		// fmod
@@ -42,15 +43,25 @@ int main(int argc, char** argv)
 	initializeGL();
 	// activate main loop
 	glutMainLoop();
+
+	if (curve != NULL)
+	{
+		delete curve;
+		curve = NULL;
+	}
+
 	return 0;
 }
 
 void setDefaults()
 {
+	curveMode = false;
+	curve = NULL;
+
 	// scene Information
-	transX = -1.0f;
-	transY = -1.0f;
-	transZ = -4.0f;
+	transX = 0.0f;
+	transY = 0.0f;
+	transZ = 0.0f;
 	angleX = 0.0f;
 	angleY = 0.0f;
 	// mouse information
@@ -67,11 +78,12 @@ void setDefaults()
 void initializeGL()
 {
 	// black screen
-	glClearColor(0, 0, 0, 0);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 	// enable depth buffer
 	glEnable(GL_DEPTH_TEST);
 	// Use Point Smoothing
 	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
 	glPointSize(4.0f);
 	glLineWidth(4.0f);
 	// set shading model
@@ -114,42 +126,18 @@ void drawCS()
 
 void drawObjects()
 {
+	//glBegin(GL_POINTS);
+	//glColor3f(1.0f, 0.0f, 0.0f);
+	//glVertex3f(0.0f, 0.0f, 0.0f);
+	//glVertex3f(1.0f, 0.0f, 0.0f);
+	//glVertex3f(2.0f, 0.0f, 0.0f);
+	//glVertex3f(3.0f, 0.0f, 0.0f);
+	//glEnd();
 
-	// hint: if DRAW_EXAMPLES is not defined, p1, p2 and p3 are initialized in the setDefaults method
-#ifdef DRAW_EXAMPLES
-
-	// Example: draw a line
-
-
-	// to draw lines: specify color with glColor3f and two vertices with glVertex3f
-	p2.homogenize(); // always homogenize before drawing unless you know for sure that the w component is 1 already
-	glBegin(GL_LINES);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(p1.x, p1.y, p1.z);
-	glVertex3f(p2.x, p2.y, p2.z);
-	glEnd();
-
-	// Example: draw a point
-	p3.x = 0.5f;
-	p3.y = 0.5f;
-	p3.z = 0.5f;
-	p3.w = 1.0f;
-
-	// to draw a point: specify a color with glColor3f and one vertex with glVertex3f
-	glBegin(GL_POINTS);
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(p3.x, p3.y, p3.z);
-	glEnd();
-
-#endif
-
-	// TODO: generate, transform and draw objects, like detailed in exercise description
-	// To generate a transformation matrix use for example: "Matrix4f trans = Matrix4f::translationMatrix(1,2,3);"
-	// To concatenate two matrices use *: "Matrix4f resultMatrix = leftMatrix * rightMatrix;"
-	// To transform a point use *: "Vec4f resultPoint = matrix * point;"
-	// =================================================================================
-
-	// =================================================================================
+	if (curve != NULL)
+	{
+		curve->draw();
+	}
 }
 
 void rotate10AroundZ(Vec4f& v) {
@@ -185,13 +173,20 @@ void renderScene()
 	// clear and set camera
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	// translate scene in viewing direction
-	glTranslatef(transX, transY, transZ);
-	// rotate scene
-	glRotatef(angleX, 0.0f, 1.0f, 0.0f);
-	glRotatef(angleY, 1.0f, 0.0f, 0.0f);
-	// draw coordinate system without lighting
+	// camera
+	gluLookAt(0.0f, 0.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
 	glDisable(GL_LIGHTING);
+
+	glBegin(GL_QUADS);
+	glColor3f(0.9f, 0.9f, 0.9f);
+	glVertex3f(-100.0f, 100.0f, -.0001f);
+	glVertex3f(-100.0f, -100.0f, -.0001f);
+	glVertex3f(100.0f, -100.0f, -.0001f);
+	glVertex3f(100.0f, 100.0f, -.0001f);
+	glEnd();
+
+	// draw coordinate system without lighting
 	drawCS();
 	drawObjects();
 	// swap Buffers
@@ -254,6 +249,15 @@ void keyPressed(unsigned char key, int x, int y)
 		concattedTransformation(p2);
 		glutPostRedisplay();
 		break;
+	case 'p':
+	case 'P':
+		if (!curveMode && curve != NULL)
+		{
+			curve = NULL;
+		}
+		curveMode = !curveMode;
+		std::cout << "curve mode : " << curveMode << std::endl;
+		break;
 		// ==========================================================================
 	}
 }
@@ -263,6 +267,21 @@ void mousePressed(int button, int state, int x, int y)
 	mouseButton = button;
 	mouseX = x;
 	mouseY = y;
+
+	if (curveMode && state == GLUT_DOWN)
+	{
+		if (curve == NULL)
+		{
+			curve = new Curve();
+		}
+
+
+		Vec3d point = worldCoord(x, y);
+		point.z = 0.0f;
+		curve->addPoint(point);
+
+		std::cout << "create new curve point at x=" << x << " y=" << y << " (" << point.x << ", " << point.y << ", " << point.z << ")" << std::endl;
+	}
 }
 
 void mouseMoved(int x, int y)
@@ -298,6 +317,27 @@ void mouseMoved(int x, int y)
 // === VARIOUS ===
 // ===============
 
+// project screen coordinates into world coordinates
+Vec3d worldCoord(int x, int y){
+	GLint viewport[4];
+	GLdouble M[16], P[16];
+	GLfloat winX, winY, winZ;
+	GLdouble posX, posY, posZ;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, M);
+	glGetDoublev(GL_PROJECTION_MATRIX, P);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	winX = (float)x;
+	winY = (float)viewport[3] - (float)y;
+	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+	//winZ = 0.0f;
+
+	gluUnProject(winX, winY, winZ, M, P, viewport, &posX, &posY, &posZ);
+
+	return Vec3d(posX, posY, posZ);
+}
+
 void coutHelp()
 {
 	std::cout << std::endl;
@@ -317,4 +357,8 @@ void coutHelp()
 	std::cout << "* To test incommutativity of transformations, run 'X' and 'Z' in different orders." << std::endl;
 	std::cout << "* To test special case of commutativity of transformations, run 'Y' and 'T' in different orders." << std::endl;
 	std::cout << std::endl;
+
+	Vec3f P[4] = { Vec3f(0, 0, 0), Vec3f(0, 1, 0), Vec3f(1, 1, 0), Vec3f(1, 0, 0) };
+
+	/*CurveGenerator::render(3, P, 4);*/
 }

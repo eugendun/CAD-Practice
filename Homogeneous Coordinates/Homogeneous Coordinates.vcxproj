@@ -58,6 +58,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)\packages\freeglut.2.8.1.15\build\native\include</AdditionalIncludeDirectories>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -65,6 +66,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\packages\freeglut.2.8.1.15\build\native\lib\v100\Win32\$(ConfigurationName)\dynamic</AdditionalLibraryDirectories>
       <AdditionalDependencies>freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -88,6 +92,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Curve.h" />
+    <ClInclude Include="CurveGenerator.h" />
     <ClInclude Include="IDrawable.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Matrix4.h" />
@@ -98,6 +104,8 @@
     <ClInclude Include="Vec4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Curve.cpp" />
+    <ClCompile Include="CurveGenerator.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="Point.cpp" />
