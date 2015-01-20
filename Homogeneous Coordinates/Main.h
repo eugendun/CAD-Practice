@@ -28,6 +28,8 @@
 // use this define, to draw an example line and point
 #define DRAW_EXAMPLES
 
+const int POINT_MOVE_UPDATE_RATE = 5;
+
 // some points used for drawing point & line example
 Vec4f p1, p2, p3;
 
@@ -44,6 +46,9 @@ int mouseX, mouseY, mouseButton;
 float mouseSensitivy;
 
 bool curveMode;
+bool bPointSelectionMode;
+int selectedPointIndex;
+int pointMoveTick;
 
 // ==============
 // === BASICS ===

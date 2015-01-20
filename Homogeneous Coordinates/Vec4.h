@@ -65,6 +65,39 @@ public:
 	{
 		return !(*this == v);
 	}
+
+	// Vec3 = Vec3 + Vec3 (vector addition)
+	Vec4 operator+ (const Vec4 &v) const
+	{
+		Vec4 result;
+		result.x = x + v.x;
+		result.y = y + v.y;
+		result.z = z + v.z;
+		result.w = w + v.w;
+		return result;
+	}
+
+	// Vec3 = Vec3 - Vec3 (normal vector subtraction)
+	Vec4 operator- (const Vec4 &v) const
+	{
+		Vec4 result;
+		result.x = x - v.x;
+		result.y = y - v.y;
+		result.z = z - v.z;
+		result.w = w - v.w;
+		return result;
+	}
+
+	// Vec3 = Vec3 * T (scalar multiplication)
+	Vec4 operator* (const T &f) const
+	{
+		Vec4 result;
+		result.x = x * f;
+		result.y = y * f;
+		result.z = z * f;
+		result.w = w * f;
+		return result;
+	}
 	
 	// returns euclidic length (sqrt(x*x + y*y + z*z + w*w))
 	float length() const
@@ -129,6 +162,13 @@ public:
 	}
 
 }; // class Vec4
+
+// Vec4 = T * Vec4 (scalar multiplication)
+template <class T>
+Vec4<T> operator* (const T &f, const Vec4<T> &v)
+{
+	return v * f;
+}
 
 // ostream << operator
 template< class T>

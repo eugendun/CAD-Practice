@@ -56,7 +56,10 @@ int main(int argc, char** argv)
 void setDefaults()
 {
 	curveMode = false;
+	bPointSelectionMode = false;
 	curve = NULL;
+	selectedPointIndex = -1;
+	pointMoveTick = POINT_MOVE_UPDATE_RATE;
 
 	// scene Information
 	transX = 0.0f;
@@ -84,8 +87,8 @@ void initializeGL()
 	// Use Point Smoothing
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
-	glPointSize(4.0f);
-	glLineWidth(4.0f);
+	glPointSize(6.0f);
+	glLineWidth(2.0f);
 	// set shading model
 	glShadeModel(GL_SMOOTH);
 	// key bindings => cout
@@ -256,7 +259,55 @@ void keyPressed(unsigned char key, int x, int y)
 			curve = NULL;
 		}
 		curveMode = !curveMode;
-		std::cout << "curve mode : " << curveMode << std::endl;
+		glutPostRedisplay();
+		std::cout << "curve mode : " << (curveMode ? "true" : "false") << std::endl;
+		break;
+	case 'm':
+	case 'M':
+		bPointSelectionMode = !bPointSelectionMode;
+		glutPostRedisplay();
+		std::cout << "Selection mode: " << (bPointSelectionMode ? "true" : "false") << std::endl;
+		break;
+	case '+':
+		std::cout << "+" << std::endl;
+		if (bPointSelectionMode)
+		{
+			curve->increaseWeightOfPoint(selectedPointIndex);
+			glutPostRedisplay();
+		}
+		break;
+	case '-':
+		std::cout << "-" << std::endl;
+		if (bPointSelectionMode)
+		{
+			curve->decreaseWeightOfPoint(selectedPointIndex);
+			glutPostRedisplay();
+		}
+		break;
+	case '1':
+		curve->bControlCurve = !curve->bControlCurve;
+		glutPostRedisplay();
+		std::cout << "control curve: " << (curve->bControlCurve ? "enabled" : "disabled") << std::endl;
+		break;
+	case '2':
+		curve->bControlPoints = !curve->bControlPoints;
+		glutPostRedisplay();
+		std::cout << "control points: " << (curve->bControlPoints ? "enabled" : "disabled") << std::endl;
+		break;
+	case '3':
+		curve->bBezier = !curve->bBezier;
+		glutPostRedisplay();
+		std::cout << "bezier visualization: " << (curve->bBezier ? "enabled" : "disabled") << std::endl;
+		break;
+	case '4':
+		curve->bDerivation = !curve->bDerivation;
+		glutPostRedisplay();
+		std::cout << "bezier derivation visualization: " << (curve->bDerivation ? "enabled" : "disabled") << std::endl;
+		break;
+	case '5':
+		curve->bRational = !curve->bRational;
+		glutPostRedisplay();
+		std::cout << "rational bezier visualization: " << (curve->bControlCurve ? "enabled" : "disabled") << std::endl;
 		break;
 		// ==========================================================================
 	}
@@ -276,16 +327,48 @@ void mousePressed(int button, int state, int x, int y)
 		}
 
 
-		Vec3d point = worldCoord(x, y);
-		point.z = 0.0f;
+		Vec3d mousePos = worldCoord(x, y);
+		Vec4d point = Vec4d(mousePos.x, mousePos.y, 0.0, 1.0);
 		curve->addPoint(point);
 
 		std::cout << "create new curve point at x=" << x << " y=" << y << " (" << point.x << ", " << point.y << ", " << point.z << ")" << std::endl;
+	}
+
+	if (bPointSelectionMode)
+	{
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+		{
+			// select point
+			Vec3d mousePos = worldCoord(x, y);
+			selectedPointIndex = curve->getNearesControlPoint(mousePos);
+			std::cout << "point selected" << std::endl;
+		}
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+		{
+			// deselect point
+			selectedPointIndex = -1;
+			curve->removeSelection();
+			std::cout << "deselect point" << std::endl;
+		}
 	}
 }
 
 void mouseMoved(int x, int y)
 {
+	if (bPointSelectionMode && mouseButton == GLUT_LEFT_BUTTON)
+	{
+		// move selected point
+		if (pointMoveTick == 0)
+		{
+			Vec3d mousePos = worldCoord(x, y);
+			curve->moveControlPoint(selectedPointIndex, mousePos);
+
+			std::cout << "selected point moved" << std::endl;
+			pointMoveTick = POINT_MOVE_UPDATE_RATE;
+		}
+		pointMoveTick--;
+	}
+
 	// rotate (cap angleY within [-85°, +85°])
 	if (mouseButton == GLUT_LEFT_BUTTON)
 	{
@@ -345,17 +428,16 @@ void coutHelp()
 	std::cout << "ESC: exit" << std::endl;
 	std::cout << "H: show this (H)elp file" << std::endl;
 	std::cout << "R: (R)eset view" << std::endl;
-	// TODO: update help text according to your changes
 	// ================================================
-	std::cout << "X: Translate line on x axis" << std::endl;
-	std::cout << "Y: Rotate line around y axis" << std::endl;
-	std::cout << "Z: Rotate line around z axis" << std::endl;
-	std::cout << "T: Translate line on y axis" << std::endl;
-	std::cout << "C: Transform line by concatted transformations" << std::endl;
-	// ================================================
-	std::cout << "========== INFO ==========" << std::endl;
-	std::cout << "* To test incommutativity of transformations, run 'X' and 'Z' in different orders." << std::endl;
-	std::cout << "* To test special case of commutativity of transformations, run 'Y' and 'T' in different orders." << std::endl;
+	std::cout << "P: switch in edit mode (right mouse click to create a new point)" << std::endl;
+	std::cout << "M: switch in selection mode (right mouse click and move to select and move a point)" << std::endl;
+	std::cout << "+: increase weight of selected point" << std::endl;
+	std::cout << "-: decrease wight of selected point" << std::endl;
+	std::cout << "1: to enable/disable control curve" << std::endl;
+	std::cout << "2: to enable/disable control points" << std::endl;
+	std::cout << "3: to enable/disable bezier visualization" << std::endl;
+	std::cout << "4: to enable/disable bezier derivation visialization" << std::endl;
+	std::cout << "5: to enable/disable rational bezier visualization" << std::endl;
 	std::cout << std::endl;
 
 	Vec3f P[4] = { Vec3f(0, 0, 0), Vec3f(0, 1, 0), Vec3f(1, 1, 0), Vec3f(1, 0, 0) };

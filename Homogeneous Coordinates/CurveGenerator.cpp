@@ -9,9 +9,9 @@ CurveGenerator::~CurveGenerator()
 {
 }
 
-Vec3d CurveGenerator::deCasteljau(std::vector<Vec3d> P, double u)
+Vec4d CurveGenerator::deCasteljau(std::vector<Vec4d> P, double u)
 {
-	std::vector<Vec3d> Q = P;
+	std::vector<Vec4d> Q = P;
 
 	for (int k = 0; k < P.size(); k++)
 	{
@@ -24,18 +24,18 @@ Vec3d CurveGenerator::deCasteljau(std::vector<Vec3d> P, double u)
 	return Q[0];
 }
 
-std::vector<Vec3d> CurveGenerator::diffCurve(std::vector<Vec3d> & P)
+std::vector<Vec4d> CurveGenerator::diffCurve(std::vector<Vec4d> & P)
 {
-	std::vector<Vec3d> Q;
+	std::vector<Vec4d> Q;
 
 	if (P.size() == 1)
 	{
-		Q = std::vector<Vec3d>(1);
+		Q = std::vector<Vec4d>(1);
 		Q[0] = P[0];
 		return Q;
 	}
 
-	Q = std::vector<Vec3d>(P.size());
+	Q = std::vector<Vec4d>(P.size());
 
 	for (int i = 0; i < P.size() - 1; i++)
 	{
@@ -45,11 +45,11 @@ std::vector<Vec3d> CurveGenerator::diffCurve(std::vector<Vec3d> & P)
 	return Q;
 }
 
-std::vector<Vec3d> CurveGenerator::bezierCurve(int m, std::vector<Vec3d> P, int n)
+std::vector<Vec4d> CurveGenerator::bezierCurve(int m, std::vector<Vec4d> P, int n)
 {
-	std::vector<Vec3d> C(P.size());
+	std::vector<Vec4d> C = std::vector<Vec4d>();
 
-	for (int i = 0; i < m; i++)
+	for (int i = 0; i <= m; i++)
 	{
 		C.push_back(deCasteljau(P, i / (double)m));
 	}
@@ -57,7 +57,7 @@ std::vector<Vec3d> CurveGenerator::bezierCurve(int m, std::vector<Vec3d> P, int 
 	return C;
 }
 
-std::vector<Vec3d> CurveGenerator::bezierRationalCurve(int m, std::vector<Vec3d> P, int n)
+std::vector<Vec4d> CurveGenerator::bezierRationalCurve(int m, std::vector<Vec4d> P, int n)
 {
 	for (int i = 0; i < n; i++)
 	{
