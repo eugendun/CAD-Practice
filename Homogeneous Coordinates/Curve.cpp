@@ -153,26 +153,6 @@ void Curve::recalcRational()
 	rational = CurveGenerator::bezierCurve(lineSegments, temp, temp.size());
 }
 
-void Curve::controlCurveEnabled(bool enabled)
-{
-	bControlCurve = enabled;
-}
-
-void Curve::controlPointsEnabeld(bool enabled)
-{
-	bControlPoints = enabled;
-}
-
-void Curve::derivationEnabled(bool enabled)
-{
-	bDerivation = enabled;
-}
-
-void Curve::bezierEnabled(bool enabled)
-{
-	bBezier = enabled;
-}
-
 void Curve::setLineSegments(int m)
 {
 	lineSegments = m;

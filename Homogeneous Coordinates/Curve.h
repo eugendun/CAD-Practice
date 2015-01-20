@@ -14,10 +14,6 @@ public:
 	void addPoint(Vec4d point);
 	void draw();
 
-	void controlCurveEnabled(bool enabled);
-	void controlPointsEnabeld(bool enabled);
-	void derivationEnabled(bool enabled);
-	void bezierEnabled(bool enabled);
 	void setLineSegments(int m);
 	int getNearesControlPoint(Vec3d point);
 	void removeSelection();
