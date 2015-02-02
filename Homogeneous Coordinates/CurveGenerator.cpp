@@ -35,7 +35,7 @@ std::vector<Vec4d> CurveGenerator::diffCurve(std::vector<Vec4d> & P)
 		return Q;
 	}
 
-	Q = std::vector<Vec4d>(P.size());
+	Q = std::vector<Vec4d>(P.size()-1);
 
 	for (int i = 0; i < P.size() - 1; i++)
 	{
@@ -59,12 +59,5 @@ std::vector<Vec4d> CurveGenerator::bezierCurve(int m, std::vector<Vec4d> P, int 
 
 std::vector<Vec4d> CurveGenerator::bezierRationalCurve(int m, std::vector<Vec4d> P, int n)
 {
-	for (int i = 0; i < n; i++)
-	{
-		P[i].x = P[i].x / P[i].z;
-		P[i].y = P[i].y / P[i].z;
-		P[i].z = P[i].z / P[i].z;
-	}
-
 	return bezierCurve(m, P, n);
 }

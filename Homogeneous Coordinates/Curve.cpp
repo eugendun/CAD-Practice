@@ -58,11 +58,14 @@ void Curve::draw()
 void Curve::drawRational()
 {
 	glBegin(GL_LINES);
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(.5f, 0.0f, 0.0f);
 	for (int i = 0; i < rational.size() - 1; i++)
 	{
-		glVertex3f(rational[i].x, rational[i].y, rational[i].z);
-		glVertex3f(rational[i + 1].x, rational[i + 1].y, rational[i + 1].z);
+		double w = rational[i].w;
+		double w_2 = rational[i + 1].w;
+
+		glVertex3f(rational[i].x/w, rational[i].y/w, rational[i].z/w);
+		glVertex3f(rational[i + 1].x/w_2, rational[i + 1].y/w_2, rational[i + 1].z/w_2);
 	}
 	glEnd();
 }
