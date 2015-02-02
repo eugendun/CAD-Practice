@@ -13,10 +13,9 @@
 // ========================================================================= //
 
 #include "main.h"		// this header
-#include "CurveGenerator.h"
 
 #include <stdlib.h>		// standard library
-#include <math.h>		// fmod
+#include <cmath>		// fmod
 #include <stdio.h>		// cout
 #include <iostream>		// cout
 
@@ -40,31 +39,19 @@ int main(int argc, char** argv)
 	glutKeyboardFunc(keyPressed);
 	// further initializations
 	setDefaults();
+	calculatePoints();
 	initializeGL();
 	// activate main loop
 	glutMainLoop();
-
-	if (curve != NULL)
-	{
-		delete curve;
-		curve = NULL;
-	}
-
 	return 0;
 }
 
 void setDefaults()
 {
-	curveMode = false;
-	bPointSelectionMode = false;
-	curve = NULL;
-	selectedPointIndex = -1;
-	pointMoveTick = POINT_MOVE_UPDATE_RATE;
-
 	// scene Information
-	transX = 0.0f;
-	transY = 0.0f;
-	transZ = 0.0f;
+	transX = -1.0f;
+	transY = -1.0f;
+	transZ = -4.0f;
 	angleX = 0.0f;
 	angleY = 0.0f;
 	// mouse information
@@ -72,27 +59,67 @@ void setDefaults()
 	mouseY = 0;
 	mouseButton = 0;
 	mouseSensitivy = 1.0f;
-	// objects
-	p1.set(0.3f, 0.0f, 0.2f, 1.0f);
-	p2.set(1.4f, 0.0f, 1.4f, 2.0f);
-	p3.set(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
 void initializeGL()
 {
 	// black screen
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(0, 0, 0, 0);
 	// enable depth buffer
 	glEnable(GL_DEPTH_TEST);
 	// Use Point Smoothing
 	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_LINE_SMOOTH);
-	glPointSize(6.0f);
-	glLineWidth(2.0f);
+	glPointSize(4.0f);
+	glLineWidth(4.0f);
 	// set shading model
 	glShadeModel(GL_SMOOTH);
+	// set lighting (white light)
+	GLfloat global_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	GLfloat ambientLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat shininess = 0.9f * 128.0f;
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+	glLightf(GL_LIGHT0, GL_SHININESS, shininess);
+	glEnable(GL_LIGHT0);
+	GLfloat lp[] = { 10.0f, 20.0f, 0.0f, 1.0f };
+	glLightfv(GL_LIGHT0, GL_POSITION, lp);
+	// enable lighting by glColor
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
 	// key bindings => cout
 	coutHelp();
+}
+
+void calculatePoints()
+{
+	// objects (test surface via empty constructor)
+	nurbs = NURBS_Surface();
+	std::cout << nurbs << std::endl;
+	nrPoints = 20;
+	points.clear();
+	points.reserve(nrPoints * nrPoints);
+	normals.clear();
+	normals.reserve(nrPoints * nrPoints);
+	float div = (float)(nrPoints - 1);
+	for (unsigned int i = 0; i < nrPoints; ++i)
+	{
+		float u = (float)i / div;
+		for (unsigned int j = 0; j < nrPoints; ++j)
+		{
+			float v = (float)j / div;
+			Vec4f tangentU, tangentV;
+			points.push_back(nurbs.evaluteDeBoor(u, v, tangentU, tangentV));
+			tangentU.homogenize();
+			tangentV.homogenize();
+			Vec3f tU = Vec3f(tangentU.x, tangentU.y, tangentU.z);
+			Vec3f tV = Vec3f(tangentV.x, tangentV.y, tangentV.z);
+			normals.push_back((tU ^ tV).normalized());
+		}
+	}
 }
 
 void reshape(GLint width, GLint height)
@@ -111,6 +138,7 @@ void reshape(GLint width, GLint height)
 
 void drawCS()
 {
+	glDisable(GL_LIGHTING);
 	glBegin(GL_LINES);
 	// red X
 	glColor3f(1, 0, 0);
@@ -129,46 +157,101 @@ void drawCS()
 
 void drawObjects()
 {
-	//glBegin(GL_POINTS);
-	//glColor3f(1.0f, 0.0f, 0.0f);
-	//glVertex3f(0.0f, 0.0f, 0.0f);
-	//glVertex3f(1.0f, 0.0f, 0.0f);
-	//glVertex3f(2.0f, 0.0f, 0.0f);
-	//glVertex3f(3.0f, 0.0f, 0.0f);
-	//glEnd();
-
-	if (curve != NULL)
+	// TODO: draw nurbs surface
+	// ========================
+	if (points.size() > 3 && nurbs.controlPoints.size() > 1)
 	{
-		curve->draw();
+		// draw points of the surface (homogenized)
+		// 		glColor3f(0.0f, 1.0f, 1.0f);
+		// 		glBegin(GL_POINTS);
+		// 		for (unsigned int i = 0; i < points.size(); ++i)
+		// 		{
+		// 			Vec4f p = points[i];
+		// 			p.homogenize();
+		// 			glVertex3f(p.x, p.y, p.z);
+		// 		}
+		// 		glEnd();
+		// draw normals as lines
+		// 		glColor3f(0.0f, 0.7f, 0.7f);
+		// 		glBegin(GL_LINES);
+		// 		for (unsigned int i = 0; i < normals.size(); ++i)
+		// 		{
+		// 			Vec4f p = points[i];
+		// 			p.homogenize();
+		// 			glVertex3f(p.x, p.y, p.z);
+		// 			glVertex3f(p.x + normals[i].x, p.y + normals[i].y, p.z + normals[i].z);
+		// 		}
+		// 		glEnd();
+		// draw control polygon (homogenized)
+		glDisable(GL_LIGHTING);
+		glColor3f(1.0f, 0.0f, 1.0f);
+		glBegin(GL_POINTS);
+		for (unsigned int i = 0; i < nurbs.controlPoints.size(); ++i)
+		{
+			for (unsigned int j = 0; j < nurbs.controlPoints[i].size(); ++j)
+			{
+				Vec4f p = nurbs.controlPoints[i][j];
+				p.homogenize();
+				glVertex3f(p.x, p.y, p.z);
+			}
+		}
+		glEnd();
+		glColor3f(0.7f, 0.0f, 0.7f);
+		glBegin(GL_LINES);
+		for (unsigned int i = 0; i < nurbs.controlPoints.size(); ++i)
+		{
+			for (unsigned int j = 0; j < nurbs.controlPoints[i].size(); ++j)
+			{
+				Vec4f p = nurbs.controlPoints[i][j];
+				p.homogenize();
+				if (i > 0)
+				{
+					Vec4f pV = nurbs.controlPoints[i - 1][j];
+					pV.homogenize();
+					glVertex3f(p.x, p.y, p.z);
+					glVertex3f(pV.x, pV.y, pV.z);
+				}
+				if (j > 0)
+				{
+					Vec4f pU = nurbs.controlPoints[i][j - 1];
+					pU.homogenize();
+					glVertex3f(p.x, p.y, p.z);
+					glVertex3f(pU.x, pU.y, pU.z);
+				}
+			}
+		}
+		glEnd();
+		// draw surface with quads
+		glEnable(GL_LIGHTING);
+		glColor3f(0.99f, 0.99f, 0.99f);
+		glBegin(GL_QUADS);
+		for (unsigned int i = 1; i < nrPoints; ++i)
+		{
+			for (unsigned int j = 1; j < nrPoints; ++j)
+			{
+				unsigned int index;
+				Vec4f& p = points.front();
+				index = j*nrPoints + i;
+				p = points[index];
+				glNormal3f(normals[index].x, normals[index].y, normals[index].z);
+				glVertex3f(p.x / p.w, p.y / p.w, p.z / p.w);
+				index = (j - 1)*nrPoints + i;
+				p = points[index];
+				glNormal3f(normals[index].x, normals[index].y, normals[index].z);
+				glVertex3f(p.x / p.w, p.y / p.w, p.z / p.w);
+				index = (j - 1)*nrPoints + i - 1;
+				p = points[index];
+				glNormal3f(normals[index].x, normals[index].y, normals[index].z);
+				glVertex3f(p.x / p.w, p.y / p.w, p.z / p.w);
+				index = j*nrPoints + i - 1;
+				p = points[index];
+				glNormal3f(normals[index].x, normals[index].y, normals[index].z);
+				glVertex3f(p.x / p.w, p.y / p.w, p.z / p.w);
+			}
+		}
+		glEnd();
 	}
-}
-
-void rotate10AroundZ(Vec4f& v) {
-	Matrix4f rot = Quaternion::rotationQuaternion(10, Vec3f(0.f, 0.f, 1.f)).getRotationMatrix();
-
-	Quaternion q = Quaternion::rotationQuaternion(10, Vec3f(0.f, 0.f, 1.f));
-	Quaternion p = Quaternion(0, v.x, v.y, v.z);
-	p = (q * p) * q.conjugated();
-
-	v.x = p.u.x;
-	v.y = p.u.y;
-	v.z = p.u.z;
-}
-
-void rotate10AroundY(Vec4f& v) {
-	v = Matrix4f::rotateY(10) * v;
-}
-
-void translateX(Vec4f& v) {
-	v = Matrix4f::translationMatrix(0.5f, 0.0f, 0.0f) * v;
-}
-
-void translateY(Vec4f& v) {
-	v = Matrix4f::translationMatrix(0.0f, 0.5f, 0.0f) * v;
-}
-
-void concattedTransformation(Vec4f& v) {
-	v = Matrix4f::translationMatrix(0.2f, 0.5f, 0.0f) * Matrix4f::rotateZ(-15) * Matrix4f::translationMatrix(-0.2f, 0.0f, 0.0f) * v;
+	// ========================
 }
 
 void renderScene()
@@ -176,19 +259,11 @@ void renderScene()
 	// clear and set camera
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	// camera
-	gluLookAt(0.0f, 0.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-
-	glDisable(GL_LIGHTING);
-
-	glBegin(GL_QUADS);
-	glColor3f(0.9f, 0.9f, 0.9f);
-	glVertex3f(-100.0f, 100.0f, -.0001f);
-	glVertex3f(-100.0f, -100.0f, -.0001f);
-	glVertex3f(100.0f, -100.0f, -.0001f);
-	glVertex3f(100.0f, 100.0f, -.0001f);
-	glEnd();
-
+	// translate scene in viewing direction
+	glTranslatef(transX, transY, transZ);
+	// rotate scene
+	glRotatef(angleX, 0.0f, 1.0f, 0.0f);
+	glRotatef(angleY, 1.0f, 0.0f, 0.0f);
 	// draw coordinate system without lighting
 	drawCS();
 	drawObjects();
@@ -220,96 +295,6 @@ void keyPressed(unsigned char key, int x, int y)
 		setDefaults();
 		glutPostRedisplay();	// use this whenever 3d data changed to redraw the scene
 		break;
-		// TODO: place custom functions on button events here to present your results
-		// ==========================================================================
-	case 'x':
-	case 'X':
-		translateX(p1);
-		translateX(p2);
-		glutPostRedisplay();
-		break;
-	case 'y':
-	case 'Y':
-		rotate10AroundY(p1);
-		rotate10AroundY(p2);
-		glutPostRedisplay();
-		break;
-	case 'z':
-	case 'Z':
-		rotate10AroundZ(p1);
-		rotate10AroundZ(p2);
-		glutPostRedisplay();
-		break;
-	case 't':
-	case 'T':
-		translateY(p1);
-		translateY(p2);
-		glutPostRedisplay();
-		break;
-	case 'c':
-	case 'C':
-		concattedTransformation(p1);
-		concattedTransformation(p2);
-		glutPostRedisplay();
-		break;
-	case 'p':
-	case 'P':
-		if (!curveMode && curve != NULL)
-		{
-			curve = NULL;
-		}
-		curveMode = !curveMode;
-		glutPostRedisplay();
-		std::cout << "curve mode : " << (curveMode ? "true" : "false") << std::endl;
-		break;
-	case 'm':
-	case 'M':
-		bPointSelectionMode = !bPointSelectionMode;
-		glutPostRedisplay();
-		std::cout << "Selection mode: " << (bPointSelectionMode ? "true" : "false") << std::endl;
-		break;
-	case '+':
-		std::cout << "+" << std::endl;
-		if (bPointSelectionMode)
-		{
-			curve->increaseWeightOfPoint(selectedPointIndex);
-			glutPostRedisplay();
-		}
-		break;
-	case '-':
-		std::cout << "-" << std::endl;
-		if (bPointSelectionMode)
-		{
-			curve->decreaseWeightOfPoint(selectedPointIndex);
-			glutPostRedisplay();
-		}
-		break;
-	case '1':
-		curve->bControlCurve = !curve->bControlCurve;
-		glutPostRedisplay();
-		std::cout << "control curve: " << (curve->bControlCurve ? "enabled" : "disabled") << std::endl;
-		break;
-	case '2':
-		curve->bControlPoints = !curve->bControlPoints;
-		glutPostRedisplay();
-		std::cout << "control points: " << (curve->bControlPoints ? "enabled" : "disabled") << std::endl;
-		break;
-	case '3':
-		curve->bBezier = !curve->bBezier;
-		glutPostRedisplay();
-		std::cout << "bezier visualization: " << (curve->bBezier ? "enabled" : "disabled") << std::endl;
-		break;
-	case '4':
-		curve->bDerivation = !curve->bDerivation;
-		glutPostRedisplay();
-		std::cout << "bezier derivation visualization: " << (curve->bDerivation ? "enabled" : "disabled") << std::endl;
-		break;
-	case '5':
-		curve->bRational = !curve->bRational;
-		glutPostRedisplay();
-		std::cout << "rational bezier visualization: " << (curve->bControlCurve ? "enabled" : "disabled") << std::endl;
-		break;
-		// ==========================================================================
 	}
 }
 
@@ -318,57 +303,10 @@ void mousePressed(int button, int state, int x, int y)
 	mouseButton = button;
 	mouseX = x;
 	mouseY = y;
-
-	if (curveMode && state == GLUT_DOWN)
-	{
-		if (curve == NULL)
-		{
-			curve = new Curve();
-		}
-
-
-		Vec3d mousePos = worldCoord(x, y);
-		Vec4d point = Vec4d(mousePos.x, mousePos.y, 0.0, 1.0);
-		curve->addPoint(point);
-
-		std::cout << "create new curve point at x=" << x << " y=" << y << " (" << point.x << ", " << point.y << ", " << point.z << ")" << std::endl;
-	}
-
-	if (bPointSelectionMode)
-	{
-		if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-		{
-			// select point
-			Vec3d mousePos = worldCoord(x, y);
-			selectedPointIndex = curve->getNearesControlPoint(mousePos);
-			std::cout << "point selected" << std::endl;
-		}
-		if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-		{
-			// deselect point
-			selectedPointIndex = -1;
-			curve->removeSelection();
-			std::cout << "deselect point" << std::endl;
-		}
-	}
 }
 
 void mouseMoved(int x, int y)
 {
-	if (bPointSelectionMode && mouseButton == GLUT_LEFT_BUTTON)
-	{
-		// move selected point
-		if (pointMoveTick == 0)
-		{
-			Vec3d mousePos = worldCoord(x, y);
-			curve->moveControlPoint(selectedPointIndex, mousePos);
-
-			std::cout << "selected point moved" << std::endl;
-			pointMoveTick = POINT_MOVE_UPDATE_RATE;
-		}
-		pointMoveTick--;
-	}
-
 	// rotate (cap angleY within [-85°, +85°])
 	if (mouseButton == GLUT_LEFT_BUTTON)
 	{
@@ -400,27 +338,6 @@ void mouseMoved(int x, int y)
 // === VARIOUS ===
 // ===============
 
-// project screen coordinates into world coordinates
-Vec3d worldCoord(int x, int y){
-	GLint viewport[4];
-	GLdouble M[16], P[16];
-	GLfloat winX, winY, winZ;
-	GLdouble posX, posY, posZ;
-
-	glGetDoublev(GL_MODELVIEW_MATRIX, M);
-	glGetDoublev(GL_PROJECTION_MATRIX, P);
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
-	winX = (float)x;
-	winY = (float)viewport[3] - (float)y;
-	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-	//winZ = 0.0f;
-
-	gluUnProject(winX, winY, winZ, M, P, viewport, &posX, &posY, &posZ);
-
-	return Vec3d(posX, posY, posZ);
-}
-
 void coutHelp()
 {
 	std::cout << std::endl;
@@ -428,19 +345,6 @@ void coutHelp()
 	std::cout << "ESC: exit" << std::endl;
 	std::cout << "H: show this (H)elp file" << std::endl;
 	std::cout << "R: (R)eset view" << std::endl;
-	// ================================================
-	std::cout << "P: switch in edit mode (right mouse click to create a new point)" << std::endl;
-	std::cout << "M: switch in selection mode (right mouse click and move to select and move a point)" << std::endl;
-	std::cout << "+: increase weight of selected point" << std::endl;
-	std::cout << "-: decrease wight of selected point" << std::endl;
-	std::cout << "1: to enable/disable control curve" << std::endl;
-	std::cout << "2: to enable/disable control points" << std::endl;
-	std::cout << "3: to enable/disable bezier visualization" << std::endl;
-	std::cout << "4: to enable/disable bezier derivation visialization" << std::endl;
-	std::cout << "5: to enable/disable rational bezier visualization" << std::endl;
+	std::cout << "==========================" << std::endl;
 	std::cout << std::endl;
-
-	Vec3f P[4] = { Vec3f(0, 0, 0), Vec3f(0, 1, 0), Vec3f(1, 1, 0), Vec3f(1, 0, 0) };
-
-	/*CurveGenerator::render(3, P, 4);*/
 }

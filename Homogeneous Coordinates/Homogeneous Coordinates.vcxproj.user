@@ -8,4 +8,7 @@
     <LocalDebuggerEnvironment>Path=$(SolutionDir)\packages\freeglut.redist.2.8.1.15\build\native\bin\v100\Win32\$(Configuration)\dynamic;</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>false</ShowAllFiles>
+  </PropertyGroup>
 </Project>

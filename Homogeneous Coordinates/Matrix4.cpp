@@ -45,8 +45,6 @@ Matrix4f Matrix4f::operator* (const Matrix4f& rightMatrix) const
 {
 	// start with 0-matrix
 	Matrix4f result(0.0f);
-	// TODO: implement matrix matrix multiplication
-	// ============================================
 	for (int i = 0; i < 4; i++)
 	{
 		for (int k = 0; k < 4; k++)
@@ -57,7 +55,6 @@ Matrix4f Matrix4f::operator* (const Matrix4f& rightMatrix) const
 			}
 		}
 	}
-	// ============================================
 	return result;
 }
 
@@ -65,8 +62,6 @@ Vec4f Matrix4f::operator* (const Vec4f& vec) const
 {
 	// start with 0-vector
 	Vec4f result;
-	// TODO: implement matrix vector multiplication
-	// ============================================
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -74,7 +69,6 @@ Vec4f Matrix4f::operator* (const Vec4f& vec) const
 			result[i] += values[i][j] * vec[j];
 		}
 	}
-	// ============================================
 	return result;
 }
 
@@ -98,8 +92,6 @@ Matrix4f Matrix4f::translationMatrix(float tx, float ty, float tz)
 	return result;
 }
 
-// TODO: implement more basis transformation matrices
-// ==================================================
 Matrix4f Matrix4f::rotateX(float angle)
 {
 	float a = angle * M_PI / 180.0f;
@@ -165,4 +157,3 @@ Matrix4f Matrix4f::scale(float x, float y, float z)
 	result.values[2][2] = z;
 	return result;
 }
-// ==================================================

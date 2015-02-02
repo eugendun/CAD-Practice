@@ -45,6 +45,12 @@
     <ClInclude Include="Curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NURBS_Curve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NURBS_Surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Point.cpp">
@@ -66,6 +72,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Curve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NURBS_Curve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NURBS_Surface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

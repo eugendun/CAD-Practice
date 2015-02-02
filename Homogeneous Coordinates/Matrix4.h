@@ -41,7 +41,6 @@ public:
 	// returns a matrix for translation. Use "Matrix4f matrix = Matrix4f::translationMatrix(tx, ty, tz);"
 	static Matrix4f translationMatrix(float tx, float ty, float tz);
 
-	// TODO: implement more basis transformation matrices
 	// ==================================================
 	static Matrix4f rotateX(float angle);
 

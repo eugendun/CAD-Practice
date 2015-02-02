@@ -14,28 +14,19 @@
 
 #include <GL/glut.h>	// openGL helper
 
-#include "Vec4.h"		// homogene vector (4 elements)
-#include "Matrix4.h"	// homogene matrix (4x4 elements)
-#include "Curve.h"
+#include "Vec4.h"
+#include "Vec3.h"
+#include "NURBS_Surface.h"
 
 // ===================
 // === GLOBAL DATA ===
 // ===================
 
-// TODO: define global variables here to present the exercises
-// ===========================================================
-
-// use this define, to draw an example line and point
-#define DRAW_EXAMPLES
-
-const int POINT_MOVE_UPDATE_RATE = 5;
-
 // some points used for drawing point & line example
-Vec4f p1, p2, p3;
-
-Curve *curve;
-
-// ===========================================================
+NURBS_Surface nurbs;
+unsigned int nrPoints;
+std::vector<Vec4f> points;
+std::vector<Vec3f> normals;
 
 // do not modify data below unless you know what you do
 // camera Information
@@ -44,11 +35,6 @@ float angleX, angleY;
 // mouse information
 int mouseX, mouseY, mouseButton;
 float mouseSensitivy;
-
-bool curveMode;
-bool bPointSelectionMode;
-int selectedPointIndex;
-int pointMoveTick;
 
 // ==============
 // === BASICS ===
@@ -59,6 +45,8 @@ int main(int argc, char **argv);
 void setDefaults();
 
 void initializeGL();
+
+void calculatePoints();
 
 void reshape(GLint width, GLint height);
 
@@ -85,7 +73,5 @@ void mouseMoved(int x, int y);
 // ===============
 // === VARIOUS ===
 // ===============
-
-Vec3d worldCoord(int x, int y);
 
 void coutHelp();
