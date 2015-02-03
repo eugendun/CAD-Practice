@@ -59,6 +59,8 @@ void setDefaults()
 	mouseY = 0;
 	mouseButton = 0;
 	mouseSensitivy = 1.0f;
+
+	nrPoints = 10;
 }
 
 void initializeGL()
@@ -99,7 +101,7 @@ void calculatePoints()
 	// objects (test surface via empty constructor)
 	nurbs = NURBS_Surface();
 	std::cout << nurbs << std::endl;
-	nrPoints = 20;
+	
 	points.clear();
 	points.reserve(nrPoints * nrPoints);
 	normals.clear();
@@ -296,6 +298,19 @@ void keyPressed(unsigned char key, int x, int y)
 	case 'R':
 		setDefaults();
 		glutPostRedisplay();	// use this whenever 3d data changed to redraw the scene
+		break;
+	case 'm':
+		nrPoints++;
+		calculatePoints();
+		glutPostRedisplay();
+		break;
+	case 'M':
+		if (nrPoints > 0)
+		{
+			nrPoints--;
+			calculatePoints();
+			glutPostRedisplay();
+		}
 		break;
 	}
 }
