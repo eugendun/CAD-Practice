@@ -104,16 +104,46 @@ Vec4f NURBS_Surface::evaluteDeBoor(const float u, const float v, Vec4f& tangentU
 	Vec4f evaluatedPoint;
 	// TODO: evaluate the surface by evaluating curves
 	// ===============================================
-	std::vector<Vec4f> temp;
-	temp.reserve(controlPoints.size());
+	std::vector<Vec4f> outerV;
+	outerV.reserve(controlPoints.size());
 	for (int i = 0; i < controlPoints.size(); i++)
 	{
-		NURBS_Curve nurbsCurve = NURBS_Curve(controlPoints[i], knotVectorU, degree);
-		temp.push_back(nurbsCurve.evaluteDeBoor(u, tangentU));
+		std::vector<Vec4f> inner;
+		inner.reserve(controlPoints[i].size());
+		for (int j = 0; j < controlPoints[i].size(); j++)
+		{
+			inner.push_back(controlPoints[i][j]);
+		}
+
+		NURBS_Curve innerNurbsCurve = NURBS_Curve(inner, knotVectorU, degree);
+
+		Vec4f tempTangent;
+		outerV.push_back(innerNurbsCurve.evaluteDeBoor(u, tempTangent));
 	}
 
-	NURBS_Curve nurbsCurve = NURBS_Curve(temp, knotVectorV, degree);
-	evaluatedPoint = nurbsCurve.evaluteDeBoor(v, tangentV);
+	NURBS_Curve outerNurbsCurve = NURBS_Curve(outerV, knotVectorV, degree);
+	evaluatedPoint = outerNurbsCurve.evaluteDeBoor(v, tangentV);
+
+	std::vector<Vec4f> outerU;
+	outerU.reserve(controlPoints.size());
+	for (int i = 0; i < controlPoints.size(); i++)
+	{
+		std::vector<Vec4f> inner;
+		inner.reserve(controlPoints[i].size());
+		for (int j = 0; j < controlPoints[i].size(); j++)
+		{
+			inner.push_back(controlPoints[j][i]);
+		}
+
+		NURBS_Curve innerNurbsCurve = NURBS_Curve(inner, knotVectorV, degree);
+
+		Vec4f tempTangent;
+		outerU.push_back(innerNurbsCurve.evaluteDeBoor(v, tempTangent));
+	}
+
+
+	outerNurbsCurve = NURBS_Curve(outerU, knotVectorU, degree);
+	evaluatedPoint = outerNurbsCurve.evaluteDeBoor(u, tangentU);
 	// ===============================================
 	return evaluatedPoint;
 }

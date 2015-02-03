@@ -29,6 +29,8 @@ public:
 	// evaluate the curve at parameter t with deBoor (inserting a knot until its multiplicity is p). also returns the tangent at the evaluated point.
 	Vec4f evaluteDeBoor(const float u, const float v, Vec4f& tangentU, Vec4f& tangentV);
 
+private:
+	Vec4f evaluteDeBoor(const float u, const float v, Vec4f& tangentU, Vec4f& tangentV, bool invert);
 };
 
 // ostream << operator. E.g. use "std::cout << nurbs << std::endl;"
