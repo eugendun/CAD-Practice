@@ -104,7 +104,16 @@ Vec4f NURBS_Surface::evaluteDeBoor(const float u, const float v, Vec4f& tangentU
 	Vec4f evaluatedPoint;
 	// TODO: evaluate the surface by evaluating curves
 	// ===============================================
-	
+	std::vector<Vec4f> temp;
+	temp.reserve(controlPoints.size());
+	for (int i = 0; i < controlPoints.size(); i++)
+	{
+		NURBS_Curve nurbsCurve = NURBS_Curve(controlPoints[i], knotVectorU, degree);
+		temp.push_back(nurbsCurve.evaluteDeBoor(u, tangentU));
+	}
+
+	NURBS_Curve nurbsCurve = NURBS_Curve(temp, knotVectorV, degree);
+	evaluatedPoint = nurbsCurve.evaluteDeBoor(v, tangentV);
 	// ===============================================
 	return evaluatedPoint;
 }

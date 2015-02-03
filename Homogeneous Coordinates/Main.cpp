@@ -162,26 +162,28 @@ void drawObjects()
 	if (points.size() > 3 && nurbs.controlPoints.size() > 1)
 	{
 		// draw points of the surface (homogenized)
-		// 		glColor3f(0.0f, 1.0f, 1.0f);
-		// 		glBegin(GL_POINTS);
-		// 		for (unsigned int i = 0; i < points.size(); ++i)
-		// 		{
-		// 			Vec4f p = points[i];
-		// 			p.homogenize();
-		// 			glVertex3f(p.x, p.y, p.z);
-		// 		}
-		// 		glEnd();
+		glColor3f(0.0f, 1.0f, 1.0f);
+		glBegin(GL_POINTS);
+		for (unsigned int i = 0; i < points.size(); ++i)
+		{
+			Vec4f p = points[i];
+			p.homogenize();
+			glVertex3f(p.x, p.y, p.z);
+		}
+		glEnd();
+
 		// draw normals as lines
-		// 		glColor3f(0.0f, 0.7f, 0.7f);
-		// 		glBegin(GL_LINES);
-		// 		for (unsigned int i = 0; i < normals.size(); ++i)
-		// 		{
-		// 			Vec4f p = points[i];
-		// 			p.homogenize();
-		// 			glVertex3f(p.x, p.y, p.z);
-		// 			glVertex3f(p.x + normals[i].x, p.y + normals[i].y, p.z + normals[i].z);
-		// 		}
-		// 		glEnd();
+		glColor3f(0.0f, 0.7f, 0.7f);
+		glBegin(GL_LINES);
+		for (unsigned int i = 0; i < normals.size(); ++i)
+		{
+			Vec4f p = points[i];
+			p.homogenize();
+			glVertex3f(p.x, p.y, p.z);
+			glVertex3f(p.x + normals[i].x, p.y + normals[i].y, p.z + normals[i].z);
+		}
+		glEnd();
+
 		// draw control polygon (homogenized)
 		glDisable(GL_LIGHTING);
 		glColor3f(1.0f, 0.0f, 1.0f);
